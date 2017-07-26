@@ -1,29 +1,38 @@
+{{ if ls "/lolek" }}
 upstream lolek_pool {
-{{range getvs "/lolek/*"}}
-    server {{.}};
+{{range gets "/lolek/*"}}
+ {{ $config := split (.Key) ":" }}
+    server {{ .Value }}; #{{ .Key }} {{ .Value }}
 {{end}}
 }
-
+{{end}}
+{{ if ls "/bolek" }}
 upstream bolek_pool {
-{{range getvs "/bolek/*"}}
-    server {{.}};
+{{range gets "/bolek/*"}}
+ {{ $config := split (.Key) ":" }}
+    server {{ .Value }}; #{{ .Key }} {{ .Value }}
 {{end}}
 }
+{{end}}
 
 server {
     listen 80;
+	{{ if ls "/lolek" }}
     location /lolek {
-        proxy_pass        http://lolek_pool;
-        proxy_redirect    off;
+        rewrite ^/lolek$ /$1 break;
+		proxy_pass        http://lolek_pool;
         proxy_set_header  Host             $host;
         proxy_set_header  X-Real-IP        $remote_addr;
         proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
    }
+   {{end}}
+   {{ if ls "/bolek" }}
    location /bolek {
+		rewrite ^/bolek$ /$1 break;
         proxy_pass        http://bolek_pool;
-        proxy_redirect    off;
-        proxy_set_header  Host             $host;
+		proxy_set_header  Host             $host;
         proxy_set_header  X-Real-IP        $remote_addr;
         proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
    }
+   {{end}}
 }

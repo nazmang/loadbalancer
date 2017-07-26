@@ -1,11 +1,11 @@
 [template]
 src = "nginx.conf.tmpl"
-dest = "/etc/nginx/sites-enabled/services.conf"
-owner = "nginx"
+dest = "/etc/nginx/conf.d/services.conf"
+owner = "root"
 mode = "0644"
 keys = [
   "/lolek",
   "/bolek"
 ]
-check_cmd = "/usr/sbin/nginx -t -c {{.src}}"
+check_cmd = "/usr/sbin/nginx -t"
 reload_cmd = "/usr/sbin/service nginx reload"
